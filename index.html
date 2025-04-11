@@ -1,13 +1,148 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>StudyBuddy | Fine</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyBuddy | Fine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#93c5fd',
+            accent: '#1e40af',
+            neutral: '#f3f4f6',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .flip-card {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      backface-visibility: hidden;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-book-open text-primary text-2xl mr-2"></i>
+        <h1 class="text-xl font-bold text-gray-800">StudyBuddy</h1>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="index.html" class="text-primary font-medium hover:text-accent">Dashboard</a></li>
+          <li><a href="create.html" class="text-gray-600 hover:text-primary">Create Cards</a></li>
+          <li><a href="study.html" class="text-gray-600 hover:text-primary">Study</a></li>
+          <li><a href="stats.html" class="text-gray-600 hover:text-primary">Stats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-gray-800 mb-2">Welcome to StudyBuddy</h2>
+      <p class="text-gray-600 max-w-lg mx-auto">Your personal flashcard study assistant. Create cards, organize your study sessions, and track your progress.</p>
+    </div>
+
+    <!-- Dashboard Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+      <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="text-4xl font-bold text-primary mb-2" id="total-cards">0</div>
+        <div class="text-gray-600">Total Flashcards</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="text-4xl font-bold text-primary mb-2" id="categories">0</div>
+        <div class="text-gray-600">Categories</div>
+      </div>
+      <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="text-4xl font-bold text-primary mb-2" id="study-sessions">0</div>
+        <div class="text-gray-600">Study Sessions</div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="flex flex-col md:flex-row justify-center gap-4 mb-12">
+      <a href="create.html" class="bg-primary hover:bg-accent text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center">
+        <i class="fas fa-plus mr-2"></i> Create New Flashcards
+      </a>
+      <a href="study.html" class="bg-secondary hover:bg-primary text-white font-medium py-3 px-6 rounded-lg transition-colors flex items-center justify-center">
+        <i class="fas fa-play mr-2"></i> Start Study Session
+      </a>
+    </div>
+
+    <!-- Recent Flashcards -->
+    <div class="mb-8">
+      <h3 class="text-xl font-semibold text-gray-800 mb-4">Recent Flashcards</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="recent-cards">
+        <!-- Cards will be inserted here by JavaScript -->
+        <div class="text-center text-gray-500 py-8 col-span-full" id="no-cards-message">
+          You haven't created any flashcards yet. Get started by creating your first card!
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-12 py-6">
+    <div class="container mx-auto px-4 text-center text-gray-600">
+      <p>&copy; 2023 StudyBuddy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="src/components/flashcard.js"></script>
+  <script src="src/components/storage.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load data from local storage
+      const flashcards = getFlashcards();
+      const studySessions = getStudySessions();
+      
+      // Update dashboard stats
+      document.getElementById('total-cards').textContent = flashcards.length;
+      
+      // Get unique categories
+      const uniqueCategories = [...new Set(flashcards.map(card => card.category))].filter(Boolean);
+      document.getElementById('categories').textContent = uniqueCategories.length;
+      
+      document.getElementById('study-sessions').textContent = studySessions.length;
+      
+      // Display recent cards
+      const recentCardsContainer = document.getElementById('recent-cards');
+      const noCardsMessage = document.getElementById('no-cards-message');
+      
+      if (flashcards.length > 0) {
+        noCardsMessage.style.display = 'none';
+        
+        // Show up to 6 most recent cards
+        const recentCards = flashcards.slice(-6).reverse();
+        
+        recentCards.forEach(card => {
+          const cardElement = createFlashcardElement(card, false);
+          recentCardsContainer.appendChild(cardElement);
+        });
+      }
+    });
+  </script>
+</body>
 </html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Session | StudyBuddy | Fine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#93c5fd',
+            accent: '#1e40af',
+            neutral: '#f3f4f6',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .flip-card {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      backface-visibility: hidden;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    @keyframes slideOutLeft {
+      from { transform: translateX(0); }
+      to { transform: translateX(-100%); }
+    }
+    .slide-in {
+      animation: slideInRight 0.3s forwards;
+    }
+    .slide-out {
+      animation: slideOutLeft 0.3s forwards;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-book-open text-primary text-2xl mr-2"></i>
+        <h1 class="text-xl font-bold text-gray-800">StudyBuddy</h1>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="index.html" class="text-gray-600 hover:text-primary">Dashboard</a></li>
+          <li><a href="create.html" class="text-gray-600 hover:text-primary">Create Cards</a></li>
+          <li><a href="study.html" class="text-primary font-medium hover:text-accent">Study</a></li>
+          <li><a href="stats.html" class="text-gray-600 hover:text-primary">Stats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Study Session Setup (Initial View) -->
+    <div id="study-setup" class="max-w-lg mx-auto">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Start a Study Session</h2>
+      
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form id="study-form" class="space-y-4">
+          <div>
+            <label for="session-category" class="block text-gray-700 font-medium mb-1">Category</label>
+            <select id="session-category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="">All Categories</option>
+              <!-- Categories will be added here by JavaScript -->
+            </select>
+          </div>
+          
+          <div>
+            <label for="session-difficulty" class="block text-gray-700 font-medium mb-1">Difficulty</label>
+            <select id="session-difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+              <option value="">All Difficulties</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </select>
+          </div>
+          
+          <div>
+            <label for="session-count" class="block text-gray-700 font-medium mb-1">Number of Cards</label>
+            <input type="number" id="session-count" min="1" max="50" value="10" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+          
+          <div class="flex justify-end pt-4">
+            <button type="submit" id="start-session-btn" class="bg-primary hover:bg-accent text-white font-medium py-2 px-6 rounded-md transition-colors">
+              Start Session
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <div id="no-cards-warning" class="hidden bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md p-4">
+        <div class="flex">
+          <div class="flex-shrink-0">
+            <i class="fas fa-exclamation-triangle"></i>
+          </div>
+          <div class="ml-3">
+            <p class="text-sm">You don't have any flashcards yet. Create some cards first!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Study Session Active (Hidden Initially) -->
+    <div id="study-active" class="max-w-2xl mx-auto hidden">
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-800">Study Session</h2>
+        <div class="flex items-center">
+          <span class="text-gray-600 mr-4">Card <span id="current-card-num">1</span> of <span id="total-cards">10</span></span>
+          <button id="end-session-btn" class="text-gray-600 hover:text-red-500">
+            <i class="fas fa-times"></i> End Session
+          </button>
+        </div>
+      </div>
+      
+      <div id="study-card-container" class="mb-8">
+        <!-- The current flashcard will be inserted here -->
+      </div>
+      
+      <div class="flex justify-between">
+        <div>
+          <button id="mark-difficult-btn" class="bg-yellow-500 hover:bg-yellow-600 text-white font-medium py-2 px-4 rounded-md transition-colors mr-2">
+            <i class="fas fa-flag mr-1"></i> Mark Difficult
+          </button>
+        </div>
+        <div>
+          <button id="prev-card-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors mr-2">
+            <i class="fas fa-arrow-left mr-1"></i> Previous
+          </button>
+          <button id="next-card-btn" class="bg-primary hover:bg-accent text-white font-medium py-2 px-4 rounded-md transition-colors">
+            Next <i class="fas fa-arrow-right ml-1"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Study Session Results (Hidden Initially) -->
+    <div id="study-results" class="max-w-lg mx-auto hidden">
+      <div class="text-center mb-8">
+        <div class="inline-block p-4 rounded-full bg-green-100 text-green-500 mb-4">
+          <i class="fas fa-check-circle text-4xl"></i>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Session Complete!</h2>
+        <p class="text-gray-600">Great job! You've completed your study session.</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Session Summary</h3>
+        
+        <div class="space-y-4">
+          <div class="flex justify-between">
+            <span class="text-gray-600">Cards Studied:</span>
+            <span class="font-medium" id="result-cards-studied">10</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Marked as Difficult:</span>
+            <span class="font-medium" id="result-difficult-cards">2</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-gray-600">Time Spent:</span>
+            <span class="font-medium" id="result-time-spent">5 minutes</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="flex justify-center space-x-4">
+        <a href="study.html" class="bg-primary hover:bg-accent text-white font-medium py-2 px-6 rounded-md transition-colors">
+          New Session
+        </a>
+        <a href="index.html" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-6 rounded-md transition-colors">
+          Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-12 py-6">
+    <div class="container mx-auto px-4 text-center text-gray-600">
+      <p>&copy; 2023 StudyBuddy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="src/components/flashcard.js"></script>
+  <script src="src/components/storage.js"></script>
+  <script src="src/components/study-session.js"></script>
+</body>
+</html>

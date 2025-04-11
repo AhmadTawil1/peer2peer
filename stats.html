@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics | StudyBuddy | Fine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#93c5fd',
+            accent: '#1e40af',
+            neutral: '#f3f4f6',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-book-open text-primary text-2xl mr-2"></i>
+        <h1 class="text-xl font-bold text-gray-800">StudyBuddy</h1>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="index.html" class="text-gray-600 hover:text-primary">Dashboard</a></li>
+          <li><a href="create.html" class="text-gray-600 hover:text-primary">Create Cards</a></li>
+          <li><a href="study.html" class="text-gray-600 hover:text-primary">Study</a></li>
+          <li><a href="stats.html" class="text-primary font-medium hover:text-accent">Stats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Your Study Statistics</h2>
+    
+    <!-- Stats Overview -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Total Study Time</h3>
+          <span class="text-primary">
+            <i class="fas fa-clock"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-bold" id="total-study-time">0 min</p>
+        <p class="text-sm text-gray-500 mt-2">Across all sessions</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Cards Studied</h3>
+          <span class="text-primary">
+            <i class="fas fa-layer-group"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-bold" id="total-cards-studied">0</p>
+        <p class="text-sm text-gray-500 mt-2">Total cards reviewed</p>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg font-semibold text-gray-800">Study Sessions</h3>
+          <span class="text-primary">
+            <i class="fas fa-calendar-check"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-bold" id="total-sessions">0</p>
+        <p class="text-sm text-gray-500 mt-2">Completed sessions</p>
+      </div>
+    </div>
+    
+    <!-- Category Distribution -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Cards by Category</h3>
+        <div id="category-chart" class="h-64">
+          <!-- Simple bar chart will be rendered here -->
+          <div class="flex items-center justify-center h-full text-gray-400" id="no-category-data">
+            <p>No category data available yet</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white rounded-lg shadow-md p-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Cards by Difficulty</h3>
+        <div id="difficulty-chart" class="h-64">
+          <!-- Simple bar chart will be rendered here -->
+          <div class="flex items-center justify-center h-full text-gray-400" id="no-difficulty-data">
+            <p>No difficulty data available yet</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Recent Study Sessions -->
+    <div class="bg-white rounded-lg shadow-md p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Recent Study Sessions</h3>
+      
+      <div class="overflow-x-auto">
+        <table class="min-w-full">
+          <thead>
+            <tr class="border-b">
+              <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Date</th>
+              <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Cards Studied</th>
+              <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Categories</th>
+              <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Duration</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-table-body">
+            <!-- Session rows will be inserted here by JavaScript -->
+            <tr id="no-sessions-row">
+              <td colspan="4" class="py-4 text-center text-gray-500">No study sessions recorded yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-12 py-6">
+    <div class="container mx-auto px-4 text-center text-gray-600">
+      <p>&copy; 2023 StudyBuddy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="src/components/storage.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Load data from local storage
+      const flashcards = getFlashcards();
+      const studySessions = getStudySessions();
+      
+      // Update overview stats
+      let totalTime = 0;
+      let totalCardsStudied = 0;
+      
+      studySessions.forEach(session => {
+        totalTime += session.duration;
+        totalCardsStudied += session.cardsStudied;
+      });
+      
+      document.getElementById('total-study-time').textContent = formatTime(totalTime);
+      document.getElementById('total-cards-studied').textContent = totalCardsStudied;
+      document.getElementById('total-sessions').textContent = studySessions.length;
+      
+      // Render category chart
+      if (flashcards.length > 0) {
+        document.getElementById('no-category-data').style.display = 'none';
+        renderCategoryChart(flashcards);
+      }
+      
+      // Render difficulty chart
+      if (flashcards.length > 0) {
+        document.getElementById('no-difficulty-data').style.display = 'none';
+        renderDifficultyChart(flashcards);
+      }
+      
+      // Render sessions table
+      if (studySessions.length > 0) {
+        document.getElementById('no-sessions-row').style.display = 'none';
+        renderSessionsTable(studySessions);
+      }
+    });
+    
+    function formatTime(minutes) {
+      if (minutes < 60) {
+        return `${minutes} min`;
+      } else {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h ${mins}m`;
+      }
+    }
+    
+    function renderCategoryChart(flashcards) {
+      const categoryChart = document.getElementById('category-chart');
+      categoryChart.innerHTML = '';
+      
+      // Count cards by category
+      const categoryCounts = {};
+      flashcards.forEach(card => {
+        const category = card.category || 'Uncategorized';
+        categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+      });
+      
+      // Sort categories by count
+      const sortedCategories = Object.keys(categoryCounts).sort((a, b) => 
+        categoryCounts[b] - categoryCounts[a]
+      );
+      
+      // Create simple bar chart
+      const chartContainer = document.createElement('div');
+      chartContainer.className = 'flex h-full items-end space-x-2';
+      
+      const maxCount = Math.max(...Object.values(categoryCounts));
+      
+      sortedCategories.slice(0, 5).forEach(category => {
+        const count = categoryCounts[category];
+        const percentage = (count / maxCount) * 100;
+        
+        const barContainer = document.createElement('div');
+        barContainer.className = 'flex flex-col items-center flex-1';
+        
+        const bar = document.createElement('div');
+        bar.className = 'w-full bg-primary rounded-t';
+        bar.style.height = `${percentage}%`;
+        
+        const label = document.createElement('div');
+        label.className = 'text-xs text-gray-600 truncate w-full text-center mt-2';
+        label.textContent = category;
+        
+        const value = document.createElement('div');
+        value.className = 'text-sm font-medium';
+        value.textContent = count;
+        
+        barContainer.appendChild(bar);
+        barContainer.appendChild(value);
+        barContainer.appendChild(label);
+        
+        chartContainer.appendChild(barContainer);
+      });
+      
+      categoryChart.appendChild(chartContainer);
+    }
+    
+    function renderDifficultyChart(flashcards) {
+      const difficultyChart = document.getElementById('difficulty-chart');
+      difficultyChart.innerHTML = '';
+      
+      // Count cards by difficulty
+      const difficultyCounts = {
+        easy: 0,
+        medium: 0,
+        hard: 0
+      };
+      
+      flashcards.forEach(card => {
+        if (card.difficulty) {
+          difficultyCounts[card.difficulty] = (difficultyCounts[card.difficulty] || 0) + 1;
+        } else {
+          difficultyCounts.medium = (difficultyCounts.medium || 0) + 1;
+        }
+      });
+      
+      // Create simple bar chart
+      const chartContainer = document.createElement('div');
+      chartContainer.className = 'flex h-full items-end space-x-12 justify-center';
+      
+      const maxCount = Math.max(...Object.values(difficultyCounts));
+      
+      const difficultyColors = {
+        easy: 'bg-green-500',
+        medium: 'bg-yellow-500',
+        hard: 'bg-red-500'
+      };
+      
+      Object.keys(difficultyCounts).forEach(difficulty => {
+        const count = difficultyCounts[difficulty];
+        const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+        
+        const barContainer = document.createElement('div');
+        barContainer.className = 'flex flex-col items-center w-20';
+        
+        const bar = document.createElement('div');
+        bar.className = `w-full ${difficultyColors[difficulty]} rounded-t`;
+        bar.style.height = `${percentage}%`;
+        
+        const label = document.createElement('div');
+        label.className = 'text-sm font-medium text-gray-600 mt-2 capitalize';
+        label.textContent = difficulty;
+        
+        const value = document.createElement('div');
+        value.className = 'text-lg font-medium';
+        value.textContent = count;
+        
+        barContainer.appendChild(bar);
+        barContainer.appendChild(value);
+        barContainer.appendChild(label);
+        
+        chartContainer.appendChild(barContainer);
+      });
+      
+      difficultyChart.appendChild(chartContainer);
+    }
+    
+    function renderSessionsTable(sessions) {
+      const tableBody = document.getElementById('sessions-table-body');
+      
+      // Sort sessions by date (most recent first)
+      const sortedSessions = [...sessions].sort((a, b) => b.date - a.date);
+      
+      sortedSessions.slice(0, 10).forEach(session => {
+        const row = document.createElement('tr');
+        row.className = 'border-b hover:bg-gray-50';
+        
+        // Date column
+        const dateCell = document.createElement('td');
+        dateCell.className = 'py-3 px-4';
+        const sessionDate = new Date(session.date);
+        dateCell.textContent = sessionDate.toLocaleDateString() + ' ' + 
+                              sessionDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+        
+        // Cards studied column
+        const cardsCell = document.createElement('td');
+        cardsCell.className = 'py-3 px-4';
+        cardsCell.textContent = session.cardsStudied;
+        
+        // Categories column
+        const categoriesCell = document.createElement('td');
+        categoriesCell.className = 'py-3 px-4';
+        categoriesCell.textContent = session.categories.join(', ') || 'All';
+        
+        // Duration column
+        const durationCell = document.createElement('td');
+        durationCell.className = 'py-3 px-4';
+        durationCell.textContent = formatTime(session.duration);
+        
+        row.appendChild(dateCell);
+        row.appendChild(cardsCell);
+        row.appendChild(categoriesCell);
+        row.appendChild(durationCell);
+        
+        tableBody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

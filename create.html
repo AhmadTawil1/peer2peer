@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Flashcards | StudyBuddy | Fine</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3b82f6',
+            secondary: '#93c5fd',
+            accent: '#1e40af',
+            neutral: '#f3f4f6',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .flip-card {
+      perspective: 1000px;
+    }
+    .flip-card-inner {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flip-card.flipped .flip-card-inner {
+      transform: rotateY(180deg);
+    }
+    .flip-card-front, .flip-card-back {
+      backface-visibility: hidden;
+    }
+    .flip-card-back {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Header -->
+  <header class="bg-white shadow-md">
+    <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center">
+        <i class="fas fa-book-open text-primary text-2xl mr-2"></i>
+        <h1 class="text-xl font-bold text-gray-800">StudyBuddy</h1>
+      </div>
+      <nav>
+        <ul class="flex space-x-6">
+          <li><a href="index.html" class="text-gray-600 hover:text-primary">Dashboard</a></li>
+          <li><a href="create.html" class="text-primary font-medium hover:text-accent">Create Cards</a></li>
+          <li><a href="study.html" class="text-gray-600 hover:text-primary">Study</a></li>
+          <li><a href="stats.html" class="text-gray-600 hover:text-primary">Stats</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold text-gray-800 mb-6">Create New Flashcards</h2>
+      
+      <!-- Flashcard Form -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <form id="flashcard-form" class="space-y-4">
+          <div>
+            <label for="question" class="block text-gray-700 font-medium mb-1">Question</label>
+            <textarea id="question" name="question" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required></textarea>
+          </div>
+          
+          <div>
+            <label for="answer" class="block text-gray-700 font-medium mb-1">Answer</label>
+            <textarea id="answer" name="answer" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" required></textarea>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label for="category" class="block text-gray-700 font-medium mb-1">Category</label>
+              <div class="relative">
+                <input list="category-list" id="category" name="category" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Select or create new">
+                <datalist id="category-list">
+                  <!-- Categories will be added here by JavaScript -->
+                </datalist>
+              </div>
+            </div>
+            
+            <div>
+              <label for="difficulty" class="block text-gray-700 font-medium mb-1">Difficulty</label>
+              <select id="difficulty" name="difficulty" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary">
+                <option value="easy">Easy</option>
+                <option value="medium" selected>Medium</option>
+                <option value="hard">Hard</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="flex justify-end pt-4">
+            <button type="submit" class="bg-primary hover:bg-accent text-white font-medium py-2 px-6 rounded-md transition-colors">
+              Create Flashcard
+            </button>
+          </div>
+        </form>
+      </div>
+      
+      <!-- Preview -->
+      <div id="preview-container" class="hidden mb-8">
+        <h3 class="text-xl font-semibold text-gray-800 mb-4">Preview</h3>
+        <div id="card-preview" class="flip-card w-full h-64 cursor-pointer">
+          <div class="flip-card-inner relative w-full h-full">
+            <div class="flip-card-front absolute w-full h-full bg-white rounded-lg shadow-md p-6 flex flex-col">
+              <div class="text-sm text-gray-500 mb-2" id="preview-category"></div>
+              <div class="flex-grow flex items-center justify-center">
+                <p class="text-xl text-center" id="preview-question"></p>
+              </div>
+              <div class="flex justify-between items-center mt-4">
+                <span class="text-xs text-gray-500">Click to flip</span>
+                <span class="px-2 py-1 rounded text-xs font-medium" id="preview-difficulty"></span>
+              </div>
+            </div>
+            <div class="flip-card-back absolute w-full h-full bg-white rounded-lg shadow-md p-6 flex flex-col">
+              <div class="text-sm text-gray-500 mb-2">Answer</div>
+              <div class="flex-grow flex items-center justify-center">
+                <p class="text-xl text-center" id="preview-answer"></p>
+              </div>
+              <div class="text-xs text-gray-500 text-right mt-4">Click to flip back</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Existing Flashcards -->
+      <div>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-semibold text-gray-800">Your Flashcards</h3>
+          <div>
+            <select id="filter-category" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary text-sm">
+              <option value="">All Categories</option>
+              <!-- Categories will be added here by JavaScript -->
+            </select>
+          </div>
+        </div>
+        
+        <div id="flashcards-container" class="space-y-4">
+          <!-- Flashcards will be inserted here by JavaScript -->
+          <div class="text-center text-gray-500 py-8" id="no-cards-message">
+            You haven't created any flashcards yet.
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t mt-12 py-6">
+    <div class="container mx-auto px-4 text-center text-gray-600">
+      <p>&copy; 2023 StudyBuddy. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="src/components/flashcard.js"></script>
+  <script src="src/components/storage.js"></script>
+  <script src="src/components/card-form.js"></script>
+</body>
+</html>
