@@ -1,155 +1,299 @@
 import { useState } from "react";
-import { Header } from "@/components/layout/header";
-import { QuestionCard } from "@/components/question-card";
-import { FilterBar } from "@/components/filter-bar";
-import { useToast } from "@/hooks/use-toast";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import { 
+  Filter, 
+  Clock, 
+  BookOpen, 
+  AlertCircle, 
+  CheckCircle, 
+  ChevronDown, 
+  Search 
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Header } from "@/components/layout/header";
+import { Navigation } from "@/components/layout/navigation";
+import { HelpRequestCard } from "@/components/ui/help-request-card";
+import { SubjectBadge } from "@/components/ui/subject-badge";
 
-// Mock data for questions
-const mockQuestions = [
+const mockHelpRequests = [
   {
-    id: "1",
-    title: "How do I solve this quadratic equation: 2x² + 5x - 3 = 0?",
-    subject: "math",
-    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-    answersCount: 0,
-    isUrgent: true,
+    id: 1,
+    title: "Need help with calculus integration by parts",
+    subject: "Mathematics",
+    createdAt: "2023-10-15T14:30:00Z",
+    urgent: true,
+    answered: false,
   },
   {
-    id: "2",
-    title: "Can someone explain the process of photosynthesis in simple terms?",
-    subject: "biology",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    answersCount: 3,
-    isUrgent: false,
+    id: 2,
+    title: "How do I balance chemical equations?",
+    subject: "Chemistry",
+    createdAt: "2023-10-15T10:15:00Z",
+    urgent: false,
+    answered: false,
   },
   {
-    id: "3",
-    title: "What are the main causes of World War I?",
-    subject: "history",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    answersCount: 2,
-    isUrgent: false,
+    id: 3,
+    title: "Explain the causes of World War I",
+    subject: "History",
+    createdAt: "2023-10-14T16:45:00Z",
+    urgent: false,
+    answered: true,
   },
   {
-    id: "4",
-    title: "How do I calculate the force of gravity between two objects?",
-    subject: "physics",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 8), // 8 hours ago
-    answersCount: 1,
-    isUrgent: false,
+    id: 4,
+    title: "Help with Python recursion problem",
+    subject: "Computer Science",
+    createdAt: "2023-10-14T09:20:00Z",
+    urgent: true,
+    answered: false,
   },
   {
-    id: "5",
-    title: "Can someone help me analyze this poem by Robert Frost?",
-    subject: "english",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12), // 12 hours ago
-    answersCount: 0,
-    isUrgent: true,
-  },
-  {
-    id: "6",
-    title: "How do I implement a binary search tree in JavaScript?",
-    subject: "computer-science",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
-    answersCount: 4,
-    isUrgent: false,
+    id: 5,
+    title: "Analysis of Shakespeare's Macbeth themes",
+    subject: "Literature",
+    createdAt: "2023-10-13T13:10:00Z",
+    urgent: false,
+    answered: false,
   },
 ];
 
-interface FilterState {
-  subject: string;
-  urgency: string;
-  unansweredOnly: boolean;
-}
+const subjects = [
+  "All Subjects",
+  "Mathematics", 
+  "Physics", 
+  "Chemistry", 
+  "Biology", 
+  "Computer Science", 
+  "Literature", 
+  "History", 
+  "Geography", 
+  "Economics"
+];
 
-const FeedPage = () => {
-  const [questions, setQuestions] = useState(mockQuestions);
-  const [filters, setFilters] = useState<FilterState>({
-    subject: "all",
+const HelpRequestsFeed = () => {
+  const [filters, setFilters] = useState({
+    subject: "All Subjects",
     urgency: "all",
     unansweredOnly: false,
+    searchQuery: "",
   });
-  const { toast } = useToast();
-
-  const handleFilterChange = (newFilters: FilterState) => {
-    setFilters(newFilters);
-    // In a real app, you would fetch filtered data from the server
-    // For now, we'll just filter the mock data
+  
+  const [showFilters, setShowFilters] = useState(false);
+  
+  const handleFilterChange = (name, value) => {
+    setFilters(prev => ({ ...prev, [name]: value }));
   };
-
-  const handleHelp = (id: string) => {
-    toast({
-      title: "Help Offered",
-      description: "You've offered to help with this question!",
-    });
-  };
-
-  // Apply filters to questions
-  const filteredQuestions = mockQuestions.filter((question) => {
-    // Filter by subject
-    if (filters.subject !== "all" && question.subject !== filters.subject) {
+  
+  const filteredRequests = mockHelpRequests.filter(request => {
+    // Subject filter
+    if (filters.subject !== "All Subjects" && request.subject !== filters.subject) {
       return false;
     }
-
-    // Filter by urgency
-    if (filters.urgency === "urgent" && !question.isUrgent) {
+    
+    // Urgency filter
+    if (filters.urgency === "urgent" && !request.urgent) {
       return false;
     }
-    if (filters.urgency === "normal" && question.isUrgent) {
+    
+    // Unanswered only filter
+    if (filters.unansweredOnly && request.answered) {
       return false;
     }
-
-    // Filter by unanswered
-    if (filters.unansweredOnly && question.answersCount > 0) {
+    
+    // Search query
+    if (filters.searchQuery && !request.title.toLowerCase().includes(filters.searchQuery.toLowerCase())) {
       return false;
     }
-
+    
     return true;
   });
-
+  
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-blue-800">Help Requests</h1>
-          <Button asChild>
-            <Link to="/ask">
-              <PlusCircle className="h-4 w-4 mr-2" />
-              Ask Question
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold text-center mb-8 text-gray-800">Help Requests</h1>
+          
+          <div className="mb-6">
+            <div className="flex flex-col sm:flex-row gap-4 items-center mb-4">
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                <Input
+                  type="text"
+                  placeholder="Search questions..."
+                  className="pl-10 border-gray-300"
+                  value={filters.searchQuery}
+                  onChange={(e) => handleFilterChange("searchQuery", e.target.value)}
+                />
+              </div>
+              
+              <Button 
+                variant="outline" 
+                className="flex items-center gap-2 whitespace-nowrap"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <Filter size={18} />
+                Filters
+                <ChevronDown size={16} className={`transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </Button>
+            </div>
+            
+            {showFilters && (
+              <Card className="mb-6 shadow-sm">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    <div>
+                      <Label htmlFor="subject-filter" className="text-sm font-medium text-gray-700">Subject</Label>
+                      <Select 
+                        value={filters.subject} 
+                        onValueChange={(value) => handleFilterChange("subject", value)}
+                      >
+                        <SelectTrigger id="subject-filter" className="mt-1 border-gray-300">
+                          <SelectValue placeholder="Select subject" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {subjects.map((subject) => (
+                            <SelectItem key={subject} value={subject}>
+                              {subject}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div>
+                      <Label htmlFor="urgency-filter" className="text-sm font-medium text-gray-700">Urgency</Label>
+                      <Select 
+                        value={filters.urgency} 
+                        onValueChange={(value) => handleFilterChange("urgency", value)}
+                      >
+                        <SelectTrigger id="urgency-filter" className="mt-1 border-gray-300">
+                          <SelectValue placeholder="Select urgency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="urgent">Urgent only</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="flex items-center space-x-2 mt-6">
+                      <Checkbox 
+                        id="unanswered-only" 
+                        checked={filters.unansweredOnly}
+                        onCheckedChange={(checked) => handleFilterChange("unansweredOnly", checked)}
+                      />
+                      <Label htmlFor="unanswered-only" className="text-sm font-medium text-gray-700">
+                        Show unanswered only
+                      </Label>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+          
+          <div className="space-y-4">
+            {filteredRequests.length > 0 ? (
+              filteredRequests.map((request) => (
+                <Card key={request.id} className="overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                  <CardContent className="p-0">
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <SubjectBadge subject={request.subject} />
+                        <div className="flex items-center text-gray-500 text-sm">
+                          <Clock size={14} className="mr-1" />
+                          <span>{formatDate(request.createdAt)}</span>
+                        </div>
+                      </div>
+                      
+                      <h3 className="text-lg font-semibold mb-2">{request.title}</h3>
+                      
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {request.urgent && (
+                          <Badge variant="destructive" className="flex items-center gap-1">
+                            <AlertCircle size={14} />
+                            Urgent
+                          </Badge>
+                        )}
+                        
+                        {request.answered ? (
+                          <Badge variant="outline" className="flex items-center gap-1 text-green-600 border-green-600">
+                            <CheckCircle size={14} />
+                            Answered
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <BookOpen size={14} />
+                            Needs Help
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex justify-end">
+                        <Button 
+                          disabled={request.answered}
+                          className={request.answered ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"}
+                        >
+                          Help Now
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : (
+              <div className="text-center py-10">
+                <p className="text-gray-500">No help requests match your filters.</p>
+                <Button 
+                  variant="link" 
+                  className="mt-2"
+                  onClick={() => setFilters({
+                    subject: "All Subjects",
+                    urgency: "all",
+                    unansweredOnly: false,
+                    searchQuery: "",
+                  })}
+                >
+                  Clear all filters
+                </Button>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-8 text-center">
+            <Link to="/">
+              <Button variant="outline" className="mr-2">Ask a Question</Button>
             </Link>
-          </Button>
+            <Link to="/profile">
+              <Button variant="outline">View Profile</Button>
+            </Link>
+          </div>
         </div>
-
-        <FilterBar onFilterChange={handleFilterChange} />
-
-        {filteredQuestions.length === 0 ? (
-          <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-500">No questions match your filters</h3>
-            <p className="text-gray-400 mt-2">Try adjusting your filters or check back later</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredQuestions.map((question) => (
-              <QuestionCard
-                key={question.id}
-                id={question.id}
-                title={question.title}
-                subject={question.subject}
-                createdAt={question.createdAt}
-                answersCount={question.answersCount}
-                isUrgent={question.isUrgent}
-                onHelp={handleHelp}
-              />
-            ))}
-          </div>
-        )}
       </main>
+      
+      <Navigation />
     </div>
   );
 };
 
-export default FeedPage;
+export default HelpRequestsFeed;

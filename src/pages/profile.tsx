@@ -1,251 +1,215 @@
-import { Header } from "@/components/layout/header";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
+import { Star, Award, BookOpen, ThumbsUp, Users, Medal, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ProfileStats } from "@/components/profile-stats";
-import { ExpertiseTags } from "@/components/expertise-tags";
-import { Award, Edit, MessageSquare, Star, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Header } from "@/components/layout/header";
+import { Navigation } from "@/components/layout/navigation";
+import { ExpertiseTag } from "@/components/ui/expertise-tag";
+import { StarRating } from "@/components/ui/star-rating";
 
-const ProfilePage = () => {
-  // Mock user data
-  const user = {
-    name: "Alex Johnson",
-    username: "alexj",
-    bio: "Computer Science student at MIT. Passionate about helping others understand complex topics in math and programming. I believe that teaching is the best way to learn!",
-    photoUrl: "https://i.pravatar.cc/300?img=8",
-    stats: {
-      answersCount: 42,
-      averageRating: 4.8,
-      helpedStudents: 31,
-      bestSubject: "Computer Science",
-      points: 150,
-    },
-    expertise: ["Mathematics", "Computer Science", "Physics"],
-    badges: [
-      { name: "Top Helper", description: "Among the top 5% of helpers" },
-      { name: "Math Expert", description: "Provided excellent math explanations" },
-      { name: "Quick Responder", description: "Responds within 30 minutes" },
-    ],
-    recentActivity: [
-      {
-        id: "1",
-        type: "answer",
-        title: "Explained binary search algorithm complexity",
-        date: "2 days ago",
-        rating: 5,
-      },
-      {
-        id: "2",
-        type: "answer",
-        title: "Helped with calculus integration problem",
-        date: "4 days ago",
-        rating: 5,
-      },
-      {
-        id: "3",
-        type: "answer",
-        title: "Explained quantum physics concepts",
-        date: "1 week ago",
-        rating: 4,
-      },
-    ],
-  };
+const mockHelperProfile = {
+  id: 1,
+  name: "Alex Johnson",
+  photo: "https://i.pravatar.cc/300?img=11",
+  description: "Physics and Math tutor with 3 years of experience. I love helping students understand complex concepts in simple ways.",
+  expertise: ["Mathematics", "Physics", "Calculus", "Mechanics", "Algebra"],
+  stats: {
+    answersCount: 127,
+    averageRating: 4.8,
+    helpedStudents: 89,
+    pointsEarned: 1250,
+  },
+  badges: [
+    { name: "Top Helper", icon: Award, color: "gold" },
+    { name: "Quick Responder", icon: Zap, color: "blue" },
+    { name: "Knowledge Master", icon: BookOpen, color: "purple" },
+  ],
+  recentActivity: [
+    { type: "answer", subject: "Physics", title: "Explained Newton's Third Law" },
+    { type: "answer", subject: "Mathematics", title: "Helped with integration problem" },
+    { type: "review", rating: 5, comment: "Excellent explanation, very clear!" },
+  ]
+};
 
+const HelperProfile = () => {
+  const { name, photo, description, expertise, stats, badges, recentActivity } = mockHelperProfile;
+  
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto px-4 py-8 max-w-5xl">
-        <div className="mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                <Avatar className="h-24 w-24 border-2 border-blue-100">
-                  <AvatarImage src={user.photoUrl} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between mb-2">
-                    <div>
-                      <h1 className="text-2xl font-bold">{user.name}</h1>
-                      <p className="text-gray-500">@{user.username}</p>
+      
+      <main className="container mx-auto px-4 py-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Profile Info */}
+            <div className="md:col-span-1">
+              <Card className="shadow-md">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col items-center">
+                    <Avatar className="h-32 w-32 mb-4">
+                      <AvatarImage src={photo} alt={name} />
+                      <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                    </Avatar>
+                    
+                    <h2 className="text-2xl font-bold text-center mb-1">{name}</h2>
+                    
+                    <div className="flex items-center mb-4">
+                      <StarRating rating={stats.averageRating} />
+                      <span className="ml-2 text-gray-600">{stats.averageRating.toFixed(1)}</span>
                     </div>
-                    <Button variant="outline" size="sm" className="mt-2 md:mt-0">
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Profile
+                    
+                    <p className="text-gray-600 text-center mb-6">{description}</p>
+                    
+                    <div className="w-full">
+                      <h3 className="font-semibold mb-2 text-gray-700">Areas of Expertise</h3>
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {expertise.map((item) => (
+                          <ExpertiseTag key={item} name={item} />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                      Contact for Help
                     </Button>
                   </div>
-                  <p className="text-gray-700 mb-4">{user.bio}</p>
-                  <div className="flex flex-wrap gap-2">
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-200">
-                      <Award className="h-3.5 w-3.5 mr-1" />
-                      Top Helper
-                    </Badge>
-                    <Badge className="bg-green-100 text-green-800 hover:bg-green-200">
-                      <Star className="h-3.5 w-3.5 mr-1" />
-                      {user.stats.averageRating} Rating
-                    </Badge>
-                    <Badge className="bg-purple-100 text-purple-800 hover:bg-purple-200">
-                      <MessageSquare className="h-3.5 w-3.5 mr-1" />
-                      {user.stats.answersCount} Answers
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="md:col-span-2">
-            <Tabs defaultValue="stats">
-              <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="stats">Stats</TabsTrigger>
-                <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-                <TabsTrigger value="badges">Badges & Rewards</TabsTrigger>
-              </TabsList>
-              <TabsContent value="stats" className="mt-4">
-                <ProfileStats {...user.stats} />
-              </TabsContent>
-              <TabsContent value="activity" className="mt-4">
-                <Card>
+                </CardContent>
+              </Card>
+            </div>
+            
+            {/* Stats and Badges */}
+            <div className="md:col-span-2">
+              <div className="grid grid-cols-1 gap-6">
+                {/* Stats */}
+                <Card className="shadow-md">
                   <CardHeader>
-                    <CardTitle>Recent Activity</CardTitle>
-                    <CardDescription>Your recent contributions and ratings</CardDescription>
+                    <CardTitle className="text-xl">Helper Statistics</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="space-y-4">
-                      {user.recentActivity.map((activity) => (
-                        <div key={activity.id} className="border-b pb-4 last:border-0 last:pb-0">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <h4 className="font-medium">{activity.title}</h4>
-                              <p className="text-sm text-gray-500">{activity.date}</p>
-                            </div>
-                            <div className="flex">
-                              {Array.from({ length: 5 }).map((_, i) => (
-                                <Star
-                                  key={i}
-                                  className={`h-4 w-4 ${
-                                    i < activity.rating
-                                      ? "fill-yellow-400 text-yellow-400"
-                                      : "text-gray-300"
-                                  }`}
-                                />
-                              ))}
-                            </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-blue-100 mr-4">
+                          <BookOpen className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Answers Provided</p>
+                          <p className="text-2xl font-bold">{stats.answersCount}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-green-100 mr-4">
+                          <Users className="h-6 w-6 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Students Helped</p>
+                          <p className="text-2xl font-bold">{stats.helpedStudents}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-yellow-100 mr-4">
+                          <Star className="h-6 w-6 text-yellow-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Average Rating</p>
+                          <p className="text-2xl font-bold">{stats.averageRating.toFixed(1)}/5.0</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center">
+                        <div className="p-3 rounded-full bg-purple-100 mr-4">
+                          <ThumbsUp className="h-6 w-6 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="text-sm text-gray-500">Points Earned</p>
+                          <p className="text-2xl font-bold">{stats.pointsEarned}</p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mt-6">
+                      <div className="flex justify-between mb-2">
+                        <span className="text-sm text-gray-600">Level Progress</span>
+                        <span className="text-sm font-medium">Level 4</span>
+                      </div>
+                      <Progress value={75} className="h-2" />
+                      <div className="flex justify-between mt-1">
+                        <span className="text-xs text-gray-500">750/1000 points to Level 5</span>
+                        <span className="text-xs text-gray-500">75%</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Badges */}
+                <Card className="shadow-md">
+                  <CardHeader>
+                    <CardTitle className="text-xl">Achievements & Badges</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {badges.map((badge, index) => (
+                        <div key={index} className="flex flex-col items-center p-4 border rounded-lg">
+                          <div className={`p-3 rounded-full bg-${badge.color}-100 mb-3`}>
+                            <badge.icon className={`h-6 w-6 text-${badge.color}-600`} />
                           </div>
+                          <span className="font-medium text-center">{badge.name}</span>
                         </div>
                       ))}
                     </div>
+                    
+                    <div className="mt-6 flex justify-center">
+                      <Badge className="bg-blue-600 hover:bg-blue-700">
+                        <Medal className="mr-1 h-4 w-4" />
+                        Top 5% of Helpers
+                      </Badge>
+                    </div>
                   </CardContent>
                 </Card>
-              </TabsContent>
-              <TabsContent value="badges" className="mt-4">
-                <Card>
+                
+                {/* Recent Activity */}
+                <Card className="shadow-md">
                   <CardHeader>
-                    <CardTitle>Badges & Rewards</CardTitle>
-                    <CardDescription>Recognition for your contributions</CardDescription>
+                    <CardTitle className="text-xl">Recent Activity</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {user.badges.map((badge, index) => (
-                        <Card key={index} className="bg-gradient-to-br from-blue-50 to-white border-blue-100">
-                          <CardContent className="p-4">
-                            <div className="flex items-center space-x-3">
-                              <div className="bg-blue-100 p-2 rounded-full">
-                                <Award className="h-5 w-5 text-blue-600" />
-                              </div>
-                              <div>
-                                <h4 className="font-semibold">{badge.name}</h4>
-                                <p className="text-sm text-gray-600">{badge.description}</p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                      <Card className="bg-gradient-to-br from-purple-50 to-white border-purple-100">
-                        <CardContent className="p-4">
-                          <div className="flex items-center space-x-3">
-                            <div className="bg-purple-100 p-2 rounded-full">
-                              <Star className="h-5 w-5 text-purple-600" />
-                            </div>
+                    <ul className="space-y-4">
+                      {recentActivity.map((activity, index) => (
+                        <li key={index} className="border-b pb-3 last:border-0">
+                          {activity.type === 'answer' ? (
                             <div>
-                              <h4 className="font-semibold">+{user.stats.points} Points</h4>
-                              <p className="text-sm text-gray-600">Redeem for rewards</p>
+                              <div className="flex items-center">
+                                <BookOpen className="h-4 w-4 text-blue-600 mr-2" />
+                                <span className="text-sm font-medium">Answered a question in {activity.subject}</span>
+                              </div>
+                              <p className="text-gray-600 ml-6 mt-1">{activity.title}</p>
                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
+                          ) : (
+                            <div>
+                              <div className="flex items-center">
+                                <Star className="h-4 w-4 text-yellow-500 mr-2" />
+                                <span className="text-sm font-medium">Received a {activity.rating}-star review</span>
+                              </div>
+                              <p className="text-gray-600 ml-6 mt-1">"{activity.comment}"</p>
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
                   </CardContent>
                 </Card>
-              </TabsContent>
-            </Tabs>
-          </div>
-
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle>Areas of Expertise</CardTitle>
-                <CardDescription>Subjects you're knowledgeable in</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ExpertiseTags tags={user.expertise} />
-              </CardContent>
-            </Card>
-
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle>Achievements</CardTitle>
-                <CardDescription>Your learning milestones</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <div className="bg-green-100 p-1.5 rounded-full mr-3">
-                        <MessageSquare className="h-4 w-4 text-green-600" />
-                      </div>
-                      <span className="text-sm font-medium">Answers</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="font-semibold text-sm">{user.stats.answersCount}/50</span>
-                    </div>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-500 h-2 rounded-full"
-                      style={{ width: `${(user.stats.answersCount / 50) * 100}%` }}
-                    ></div>
-                  </div>
-
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="flex items-center">
-                      <div className="bg-blue-100 p-1.5 rounded-full mr-3">
-                        <Users className="h-4 w-4 text-blue-600" />
-                      </div>
-                      <span className="text-sm font-medium">Students Helped</span>
-                    </div>
-                    <div className="flex items-center">
-                      <span className="font-semibold text-sm">{user.stats.helpedStudents}/40</span>
-                    </div>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-blue-500 h-2 rounded-full"
-                      style={{ width: `${(user.stats.helpedStudents / 40) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
         </div>
       </main>
+      
+      <Navigation />
     </div>
   );
 };
 
-export default ProfilePage;
+export default HelperProfile;

@@ -11,13 +11,11 @@ import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./components/layout/theme-provider";
 import "./index.css";
 import Index from "./pages";
+import Feed from "./pages/feed";
+import Profile from "./pages/profile";
 import LoginForm from "./pages/login";
 import SignupForm from "./pages/signup";
 import Logout from "./pages/logout";
-import AskPage from "./pages/ask";
-import FeedPage from "./pages/feed";
-import ProfilePage from "./pages/profile";
-
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
@@ -27,12 +25,11 @@ createRoot(document.getElementById("root")!).render(
         <BrowserRouter>
           <Routes>
             <Route path='/' element={<Index />} />
+            <Route path='/feed' element={<Feed />} />
+            <Route path='/profile' element={<Profile />} />
             <Route path='/login' element={<LoginForm />} />
             <Route path='/signup' element={<SignupForm />} />
             <Route path='/logout' element={<Logout />} />
-            <Route path='/ask' element={<AskPage />} />
-            <Route path='/feed' element={<FeedPage />} />
-            <Route path='/profile' element={<ProfilePage />} />
           </Routes>
         </BrowserRouter>
         <Sonner />
